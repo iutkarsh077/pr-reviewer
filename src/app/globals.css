@@ -1,0 +1,409 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+    --ink: #102b2a;
+    --muted: #71817d;
+    --line: #d8e2dc;
+    --paper: #f3f6f1;
+    --lime: #d5f35b;
+    --orange: #f26439;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+.shell {
+    max-width: 1180px;
+    margin: auto;
+    padding: 28px 32px 0;
+}
+
+.topbar,
+.section-heading,
+.repo-top,
+.repo-footer,
+.report-head,
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 21px;
+    letter-spacing: -.7px;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    background: var(--ink);
+    color: var(--lime);
+    font: 500 12px 'DM Mono';
+}
+
+.accent {
+    color: var(--orange);
+}
+
+.github-link,
+.button {
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    text-decoration: none;
+    padding: 10px 15px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.github-link span {
+    margin-left: 12px;
+    color: var(--orange);
+}
+
+.hero {
+    padding: 106px 0 74px;
+    max-width: 730px;
+}
+
+.eyebrow {
+    margin: 0 0 13px;
+    color: var(--orange);
+    font: 500 11px 'DM Mono';
+    letter-spacing: 1.4px;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: clamp(42px, 7vw, 78px);
+    line-height: .98;
+    letter-spacing: -4px;
+    max-width: 700px;
+}
+
+.lede {
+    color: var(--muted);
+    max-width: 505px;
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 27px 0 0;
+}
+
+.workspace,
+.review-section {
+    border-top: 1px solid var(--ink);
+    padding: 28px 0 74px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    font-size: 27px;
+    letter-spacing: -1.2px;
+}
+
+.count,
+.status {
+    color: var(--muted);
+    font: 11px 'DM Mono';
+    letter-spacing: .5px;
+}
+
+.toolbar {
+    margin: 28px 0 18px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.toolbar input,
+.review-form input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 13px 0;
+    color: var(--ink);
+    outline: 0;
+}
+
+.toolbar input:focus,
+.review-form input:focus {
+    border-color: var(--ink);
+}
+
+.repo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.repo {
+    position: relative;
+    min-height: 220px;
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 19px;
+    transition: border-color .2s, transform .2s;
+}
+
+.repo:hover {
+    transform: translateY(-3px);
+    border-color: var(--ink);
+}
+
+.repo.active {
+    border: 2px solid var(--ink);
+    padding: 18px;
+}
+
+.repo-icon {
+    color: var(--orange);
+    font-size: 14px;
+}
+
+.visibility {
+    margin-right: auto;
+    margin-left: 8px;
+    color: var(--muted);
+    font: 10px 'DM Mono';
+}
+
+.toggle {
+    width: 34px;
+    height: 19px;
+    border: 0;
+    border-radius: 20px;
+    background: #c8d1cc;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.toggle span {
+    display: block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: white;
+    transition: transform .2s;
+}
+
+.toggle.on {
+    background: var(--ink);
+}
+
+.toggle.on span {
+    transform: translateX(15px);
+    background: var(--lime);
+}
+
+.repo h3 {
+    margin: 28px 0 2px;
+    font-size: 20px;
+}
+
+.repo-path,
+.description {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.description {
+    min-height: 36px;
+    margin-top: 16px;
+    line-height: 1.5;
+}
+
+.repo-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 17px;
+    padding-top: 12px;
+    color: var(--muted);
+    font: 10px 'DM Mono';
+}
+
+.enabled-label {
+    color: var(--orange);
+    font: 10px 'DM Mono';
+    margin-top: 14px;
+}
+
+.review-section {
+    padding-bottom: 100px;
+}
+
+.review-form {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    max-width: 690px;
+    margin: 28px 0 42px;
+}
+
+.review-form input {
+    font: 15px 'DM Mono';
+}
+
+.button {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.button.primary {
+    background: var(--ink);
+    color: white;
+}
+
+.button.primary:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.button:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
+.report {
+    background: var(--ink);
+    color: white;
+    padding: 30px;
+}
+
+.report h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.report-dot {
+    color: var(--lime);
+    font: 11px 'DM Mono';
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 38px;
+}
+
+.report-block {
+    border-top: 1px solid #3c5550;
+    padding-top: 13px;
+}
+
+.report-block p {
+    color: var(--lime);
+    font: 11px 'DM Mono';
+    margin: 0 0 12px;
+    text-transform: uppercase;
+}
+
+.report-block div {
+    white-space: pre-wrap;
+    color: #dce7df;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.empty {
+    padding: 46px 0;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    color: var(--muted);
+}
+
+.empty strong {
+    color: var(--ink);
+}
+
+.notice {
+    padding: 13px 16px;
+    margin-bottom: 24px;
+    border-left: 3px solid var(--orange);
+    background: #fff;
+    font-size: 13px;
+}
+
+.error {
+    color: #9a3412;
+}
+
+footer {
+    border-top: 1px solid var(--line);
+    padding: 22px 0;
+    color: var(--muted);
+    font: 10px 'DM Mono';
+}
+
+@media (max-width: 760px) {
+    .shell {
+        padding: 20px 18px 0;
+    }
+
+    .hero {
+        padding: 80px 0 58px;
+    }
+
+    .hero h1 {
+        letter-spacing: -2px;
+    }
+
+    .repo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+        align-items: flex-end;
+    }
+
+    .review-form {
+        display: block;
+    }
+
+    .review-form .button {
+        margin-top: 16px;
+        width: 100%;
+    }
+
+    .report-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .empty {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lede {
+        font-size: 15px;
+    }
+
+    footer {
+        gap: 15px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
