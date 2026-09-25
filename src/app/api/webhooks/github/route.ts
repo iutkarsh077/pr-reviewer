@@ -1,17 +1,45 @@
 import { NextResponse } from "next/server";
 import { githubFetch, webhookSignatureIsValid } from "@/lib/github";
 import { generatePullRequestReview } from "@/lib/review";
-import { getGithubInstallation } from "@/lib/database";
+import { getGithubInstallation, saveGithubInstallation } from "@/lib/database";
 import { getInstallationToken } from "@/lib/github-app";
+
+async function handleInstallationRepositories(payload: { action: string; installation: { id: number; account?: { id: number; login?: string } } }) {
+    const installationId = String(payload.installation.id);
+    try {
+        const existing = await getGithubInstallation(installationId);
+        const token = await getInstallationToken(installationId);
+        const result = await githubFetch<{ repositories: { id: number; name: string; full_name: string; private: boolean; description: string | null; language: string | null; default_branch: string; owner: { login: string } }[] }>(token, "/installation/repositories?per_page=100");
+        const repositories = result.repositories.map((repo) => ({ id: String(repo.id), name: repo.name, fullName: repo.full_name, owner: repo.owner.login, private: repo.private, description: repo.description, language: repo.language, defaultBranch: repo.default_branch }));
+        await saveGithubInstallation({
+            installationId,
+            accountId: existing ? (existing as unknown as { accountId: string }).accountId : String(payload.installation.account?.id || ""),
+            accountLogin: existing ? (existing as unknown as { accountLogin: string }).accountLogin : (payload.installation.account?.login || ""),
+            repositories,
+        });
+        console.log(`[webhook] Synced ${repositories.length} repos for installation ${installationId}`);
+        return NextResponse.json({ message: `Synced ${repositories.length} repositories` });
+    } catch (error) {
+        console.error("Webhook repo sync failed:", error instanceof Error ? error.message : error);
+        return NextResponse.json({ message: "Repo sync failed" }, { status: 502 });
+    }
+}
 
 export async function POST(request: Request) {
     const body = await request.text();
     if (!webhookSignatureIsValid(body, request.headers.get("x-hub-signature-256"))) return NextResponse.json({ message: "Invalid signature" }, { status: 401 });
     const event = request.headers.get("x-github-event");
     if (event === "ping") return NextResponse.json({ message: "pong" });
-    if (event !== "pull_request") return NextResponse.json({ message: "Ignored" });
 
     const payload = JSON.parse(body);
+
+    // Handle repo additions/removals from GitHub's manage page
+    if (event === "installation_repositories") {
+        return handleInstallationRepositories(payload);
+    }
+
+    if (event !== "pull_request") return NextResponse.json({ message: "Ignored" });
+
     if (!["opened", "synchronize", "reopened"].includes(payload.action)) return NextResponse.json({ message: "Ignored action" });
     const owner = payload.repository?.owner?.login;
     const repo = payload.repository?.name;
@@ -37,4 +65,4 @@ export async function POST(request: Request) {
             : rawMessage;
         return NextResponse.json({ message }, { status: rawMessage.startsWith("GitHub 403:") ? 403 : 502 });
     }
-}
+}

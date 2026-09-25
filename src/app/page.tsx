@@ -14,7 +14,9 @@ export default function Home() {
         return saved ? JSON.parse(saved) : {};
     });
     const [loading, setLoading] = useState(true);
+    const [syncing, setSyncing] = useState(false);
     const [error, setError] = useState("");
+    const [syncMessage, setSyncMessage] = useState("");
     const [query, setQuery] = useState("");
     const [review, setReview] = useState<Review | null>(null);
     const [reviewing, setReviewing] = useState(false);
@@ -26,6 +28,26 @@ export default function Home() {
         if (!response.ok) setError(data.message || "Connect GitHub to continue");
         else setRepos(data.data);
         setLoading(false);
+    }
+
+    async function syncRepos() {
+        setSyncing(true);
+        setSyncMessage("");
+        setError("");
+        try {
+            const response = await fetch("/api/github/repos/sync", { method: "POST" });
+            const data = await response.json();
+            if (!response.ok) {
+                setError(data.message || "Failed to sync repositories");
+            } else {
+                setRepos(data.data);
+                setSyncMessage(data.message || "Repositories synced!");
+                setTimeout(() => setSyncMessage(""), 4000);
+            }
+        } catch {
+            setError("Failed to sync repositories");
+        }
+        setSyncing(false);
     }
 
     useEffect(() => {
@@ -61,7 +83,8 @@ export default function Home() {
         <header className="topbar"><div className="brand"><span className="brand-mark">PR</span><span>reviewer<span className="accent">.</span></span></div><a className="github-link" href="/api/github/install">{repos.length ? "Manage GitHub App" : "Install GitHub App"}<span>↗</span></a></header>
         <section className="hero"><p className="eyebrow">AUTOMATED CODE REVIEW</p><h1>Ship with a second pair of eyes.</h1><p className="lede">Connect your repositories, switch on AI review, and get concise findings posted directly to every pull request.</p></section>
         {error && <div className="notice error">{error}</div>}
-        <section className="workspace"><div className="section-heading"><div><p className="eyebrow">01 / REPOSITORIES</p><h2>Your GitHub repositories</h2></div><span className="count">{repos.length} found</span></div><div className="toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter repositories..." aria-label="Filter repositories" />{loading && <span className="status">Loading from GitHub...</span>}</div>
+        {syncMessage && <div className="notice success">{syncMessage}</div>}
+        <section className="workspace"><div className="section-heading"><div><p className="eyebrow">01 / REPOSITORIES</p><h2>Your GitHub repositories</h2></div><span className="count">{repos.length} found</span></div><div className="toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter repositories..." aria-label="Filter repositories" />{loading && <span className="status">Loading from GitHub...</span>}<button className="button sync-btn" onClick={syncRepos} disabled={syncing} title="Re-fetch the latest repositories from GitHub">{syncing ? "Syncing..." : "⟳ Sync"}</button><a className="button primary add-repo-btn" href="/api/github/install" title="Add new repositories via GitHub">+ Add Repo</a></div>
             {!loading && !repos.length && <div className="empty"><strong>Install the GitHub App.</strong><span>Choose which repositories the reviewer can protect.</span><a className="button primary" href="/api/github/install">Install GitHub App</a></div>}
             <div className="repo-grid">{filtered.map((repo) => { const state = enabled[repo.id]?.enabled; return <article className={`repo ${state ? "active" : ""}`} key={repo.id}><div className="repo-top"><span className="repo-icon">{repo.private ? "◼" : "◻"}</span><span className="visibility">{repo.private ? "PRIVATE" : "PUBLIC"}</span><button className={`toggle ${state ? "on" : ""}`} onClick={() => toggle(repo)} aria-label={`${state ? "Disable" : "Enable"} AI review for ${repo.name}`}><span /></button></div><h3>{repo.name}</h3><p className="repo-path">{repo.fullName}</p><p className="description">{repo.description || "No description provided."}</p><div className="repo-footer"><span>{repo.language || "Unknown language"}</span><span>{repo.defaultBranch}</span></div>{state && <div className="enabled-label">AI REVIEW ACTIVE</div>}</article>; })}</div>
         </section>
@@ -71,3 +94,4 @@ export default function Home() {
 }
 
 function Report({ title, value }: { title: string; value: string }) { return <div className="report-block"><p>{title}</p><div>{value}</div></div>; }
+

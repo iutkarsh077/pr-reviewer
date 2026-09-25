@@ -350,6 +350,51 @@ footer {
     color: #9a3412;
 }
 
+.notice.success {
+    color: #166534;
+    border-left-color: #22c55e;
+    background: #f0fdf4;
+    animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.sync-btn {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background .2s, color .2s, border-color .2s;
+}
+
+.sync-btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: white;
+}
+
+.sync-btn:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
+.add-repo-btn {
+    flex-shrink: 0;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background .2s, border-color .2s;
+}
+
+.add-repo-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
 footer {
     border-top: 1px solid var(--line);
     padding: 22px 0;
