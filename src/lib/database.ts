@@ -86,6 +86,12 @@ export async function getGithubInstallation(installationId: string) {
     return GithubInstallation.findOne({ installationId }).lean() as Promise<GithubInstallationRecord | null>;
 }
 
+export async function getLatestGithubInstallation(): Promise<GithubInstallationRecord | null> {
+    const mongoose = await connectDatabase();
+    const GithubInstallation = getInstallationModel(mongoose);
+    return GithubInstallation.findOne().sort({ updatedAt: -1 }).lean() as Promise<GithubInstallationRecord | null>;
+}
+
 export async function setRepositoryReviewEnabled(installationId: string, repositoryId: string, enabled: boolean): Promise<GithubInstallationRecord | null> {
     const mongoose = await connectDatabase();
     const GithubInstallation = getInstallationModel(mongoose);
