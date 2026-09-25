@@ -81,6 +81,28 @@ footer {
     color: var(--orange);
 }
 
+.account {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--muted);
+    font: 11px 'DM Mono';
+}
+
+.auth-shell {
+    min-height: 100vh;
+}
+
+.auth-hero .button {
+    display: inline-block;
+    margin-top: 12px;
+}
+
+.auth-hero .button span {
+    margin-left: 12px;
+    color: var(--lime);
+}
+
 .hero {
     padding: 106px 0 74px;
     max-width: 730px;

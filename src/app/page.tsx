@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 type Repo = { id: string; name: string; fullName: string; owner: string; private: boolean; description: string | null; language: string | null; defaultBranch: string };
 type EnabledRepo = { enabled: boolean; webhookId?: string | null };
 type Review = { summary: string; key_changes: string; issues_found: string; recommendations: string };
+type User = { login: string; name: string | null; avatarUrl: string | null };
 
 export default function Home() {
     const [repos, setRepos] = useState<Repo[]>([]);
@@ -20,6 +21,7 @@ export default function Home() {
     const [query, setQuery] = useState("");
     const [review, setReview] = useState<Review | null>(null);
     const [reviewing, setReviewing] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
 
     async function loadRepos() {
         setLoading(true);
@@ -52,10 +54,23 @@ export default function Home() {
 
     useEffect(() => {
         const timer = window.setTimeout(() => {
-            loadRepos().catch(() => { setError("Unable to reach GitHub"); setLoading(false); });
+            fetch("/api/auth/me").then(async (response) => {
+                if (!response.ok) { setLoading(false); return; }
+                const data = await response.json() as { data: User };
+                setUser(data.data);
+                return loadRepos();
+            }).catch(() => { setError("Unable to reach the server"); setLoading(false); });
         }, 0);
         return () => window.clearTimeout(timer);
     }, []);
+
+    async function logout() {
+        await fetch("/api/auth/logout", { method: "POST" });
+        localStorage.removeItem("pr-reviewer-enabled");
+        setUser(null);
+        setRepos([]);
+        setEnabled({});
+    }
 
     async function toggle(repo: Repo) {
         const current = enabled[repo.id] || { enabled: false };
@@ -79,8 +94,13 @@ export default function Home() {
     }
 
     const filtered = repos.filter((repo) => `${repo.fullName} ${repo.description || ""}`.toLowerCase().includes(query.toLowerCase()));
+    if (!user) return <main className="shell auth-shell">
+        <header className="topbar"><div className="brand"><span className="brand-mark">PR</span><span>reviewer<span className="accent">.</span></span></div></header>
+        <section className="hero auth-hero"><p className="eyebrow">PRIVATE WORKSPACE</p><h1>Ship with a second pair of eyes.</h1><p className="lede">Sign in with GitHub to connect repositories and keep every review tied to your account.</p><a className="button primary" href="/api/auth/github">Sign in with GitHub <span>↗</span></a>{error && <div className="notice error">{error}</div>}</section>
+    </main>;
+
     return <main className="shell">
-        <header className="topbar"><div className="brand"><span className="brand-mark">PR</span><span>reviewer<span className="accent">.</span></span></div><a className="github-link" href="/api/github/install">{repos.length ? "Manage GitHub App" : "Install GitHub App"}<span>↗</span></a></header>
+        <header className="topbar"><div className="brand"><span className="brand-mark">PR</span><span>reviewer<span className="accent">.</span></span></div><div className="account"><span>@{user.login}</span><button className="button" onClick={logout}>Log out</button></div></header><a className="github-link" href="/api/github/install">{repos.length ? "Manage GitHub App" : "Install GitHub App"}<span>↗</span></a>
         <section className="hero"><p className="eyebrow">AUTOMATED CODE REVIEW</p><h1>Ship with a second pair of eyes.</h1><p className="lede">Connect your repositories, switch on AI review, and get concise findings posted directly to every pull request.</p></section>
         {error && <div className="notice error">{error}</div>}
         {syncMessage && <div className="notice success">{syncMessage}</div>}

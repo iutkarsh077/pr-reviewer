@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { generatePullRequestReview } from "@/lib/review";
-import { getInstallationIdFromRequest, getInstallationToken } from "@/lib/github-app";
-import { getGithubInstallation } from "@/lib/database";
+import { getAuthenticatedInstallation, getInstallationToken } from "@/lib/github-app";
 
 export async function POST(request: Request) {
     const { owner, repo, number } = await request.json();
     if (!owner || !repo || !number) return NextResponse.json({ message: "owner, repo, and number are required" }, { status: 400 });
     try {
-        const installationId = await getInstallationIdFromRequest();
-        const installation = installationId ? await getGithubInstallation(installationId) : null;
+        const context = await getAuthenticatedInstallation();
+        const installationId = context?.installationId;
+        const installation = context?.installation;
         const repository = installation?.repositories.find((item) => item.owner === owner && item.name === repo);
         if (!installationId || !repository) return NextResponse.json({ message: "Install the GitHub App for this repository first" }, { status: 401 });
         const token = await getInstallationToken(installationId);

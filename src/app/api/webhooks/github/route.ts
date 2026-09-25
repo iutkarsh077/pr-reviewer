@@ -13,6 +13,7 @@ async function handleInstallationRepositories(payload: { action: string; install
         const repositories = result.repositories.map((repo) => ({ id: String(repo.id), name: repo.name, fullName: repo.full_name, owner: repo.owner.login, private: repo.private, description: repo.description, language: repo.language, defaultBranch: repo.default_branch }));
         await saveGithubInstallation({
             installationId,
+            userId: existing?.userId || "",
             accountId: existing ? (existing as unknown as { accountId: string }).accountId : String(payload.installation.account?.id || ""),
             accountLogin: existing ? (existing as unknown as { accountLogin: string }).accountLogin : (payload.installation.account?.login || ""),
             repositories,
@@ -65,4 +66,4 @@ export async function POST(request: Request) {
             : rawMessage;
         return NextResponse.json({ message }, { status: rawMessage.startsWith("GitHub 403:") ? 403 : 502 });
     }
-}
+}

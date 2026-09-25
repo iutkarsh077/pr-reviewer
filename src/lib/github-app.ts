@@ -1,6 +1,8 @@
 import { createPrivateKey } from "node:crypto";
 import { SignJWT } from "jose";
 import { githubApi, githubHeaders } from "@/lib/github";
+import { getCurrentUser } from "@/lib/auth";
+import { getGithubInstallationForUser } from "@/lib/database";
 
 function required(name: string) {
     const value = process.env[name];
@@ -47,10 +49,12 @@ export async function getInstallationDetails(installationId: string | number) {
     return response.json() as Promise<{ id: number; account?: { id: number; login?: string; login_type?: string }; repository_selection: string }>;
 }
 
-export async function getInstallationIdFromRequest() {
+export async function getAuthenticatedInstallation() {
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
-    const cookie = cookieStore.get("github_installation_id");
-    console.log("[getInstallationIdFromRequest] cookie value:", cookie?.value ?? "NOT FOUND", "all cookies:", cookieStore.getAll().map(c => c.name));
-    return cookie?.value || null;
+    const user = await getCurrentUser();
+    const installationId = cookieStore.get("github_installation_id")?.value;
+    if (!user || !installationId) return null;
+    const installation = await getGithubInstallationForUser(installationId, user.id);
+    return installation ? { installation, installationId, user } : null;
 }
